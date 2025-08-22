@@ -1,9 +1,11 @@
-﻿using TransporteApi.Models;
-using TransporteApi.Models.Interfaces;
-using TransporteApi.Models.Requests;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using TransporteApi.Models;
+using TransporteApi.Models.DTO;
+using TransporteApi.Models.Interfaces;
+using TransporteApi.Models.Requests;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TransporteApi.Services
@@ -18,7 +20,7 @@ namespace TransporteApi.Services
         }
         public async Task CriarEntrega (CriarEntregaRequest request)
         {
-            var id = DateTime.Now.Ticks;
+            var id = DateTime.Now.Ticks.ToString();
             var entrega = new Entrega()
             {
                 Id = id,
@@ -32,7 +34,8 @@ namespace TransporteApi.Services
                 {
                     new HistoricoEntrega()
                     {
-                        Id = id,
+                        Id = Guid.NewGuid().ToString(),
+                        EntregaId = id,
                         Data = DateTime.Now,
                         Status = StatusEntrega.PEDIDO_CRIADO
                     }
@@ -49,9 +52,9 @@ namespace TransporteApi.Services
 
             if (!string.IsNullOrEmpty(request.ClienteCodigo))
             {
-                if (long.TryParse(request.ClienteCodigo, out long codigo))
+                if (decimal.TryParse(request.ClienteCodigo, out decimal codigo))
                 {
-                    query = query.Where(e => e.Id.ToString().Contains(request.ClienteCodigo));
+                    query = query.Where(e => e.Id.Contains(request.ClienteCodigo));
                 } else
                 {
                     query = query.Where(e => e.Cliente.Contains(request.ClienteCodigo));
@@ -69,12 +72,58 @@ namespace TransporteApi.Services
             }
 
             var itens = await query
+                .AsNoTracking()
                 .Include(e => e.Posts.OrderByDescending(p => p.Data))
+                .OrderBy(e => e.DataEnvio)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToListAsync();
 
             return new PaginationResult<Entrega>(itens, await query.CountAsync());
+        }
+
+        public async Task<Entrega> ObterEntregaPorId(string id)
+        {
+            var entrega = await _context.Entregas
+            .AsNoTracking()
+            .Where(e => e.Id == id)
+            .Include(e => e.Posts)
+            .FirstOrDefaultAsync();
+
+            return entrega;
+        }
+
+        public async Task<Entrega> AlterarStatusEntrega(string id, StatusEntrega status)
+        {
+            var entrega = await _context.Entregas
+            .Include(e => e.Posts)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (entrega == null)
+            {
+                throw new ArgumentException($"Entrega com ID '{id}' não encontrada.");
+            }
+               
+
+            var ultimoStatus = entrega.Posts.OrderBy(h => h.Data).FirstOrDefault()!.Status;
+            if (ultimoStatus == StatusEntrega.CANCELADA)
+            {
+                throw new ArgumentException($"Entrega com status cancelada.");
+            }
+
+            var novoHistorico = new HistoricoEntrega
+            {
+                Id = Guid.NewGuid().ToString(),
+                EntregaId = id,
+                Status = status,
+                Data = DateTime.Now
+            };
+
+            entrega.Posts.Add(novoHistorico);
+
+            await _context.SaveChangesAsync();
+
+            return entrega;
         }
     }
 }

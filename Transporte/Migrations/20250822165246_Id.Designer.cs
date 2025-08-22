@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TransporteApi.Models;
 
@@ -10,9 +11,11 @@ using TransporteApi.Models;
 namespace TransporteApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250822165246_Id")]
+    partial class Id
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.19");
@@ -57,7 +60,6 @@ namespace TransporteApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EntregaId")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -72,13 +74,9 @@ namespace TransporteApi.Migrations
 
             modelBuilder.Entity("TransporteApi.Models.HistoricoEntrega", b =>
                 {
-                    b.HasOne("TransporteApi.Models.Entrega", "Entrega")
+                    b.HasOne("TransporteApi.Models.Entrega", null)
                         .WithMany("Posts")
-                        .HasForeignKey("EntregaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Entrega");
+                        .HasForeignKey("EntregaId");
                 });
 
             modelBuilder.Entity("TransporteApi.Models.Entrega", b =>

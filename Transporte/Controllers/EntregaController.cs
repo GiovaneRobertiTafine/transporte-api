@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
+using System.Text.Json;
 using TransporteApi.Models;
 using TransporteApi.Models.DTO;
 using TransporteApi.Models.Interfaces;
@@ -40,12 +42,12 @@ namespace TransporteApi.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex);
             }
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResponseHelperPaginado<List<EntregaDto>>>> ObterEntregas (
+        public async Task<ActionResult<ResponseHelperPaginado<List<EntregaDto>>>> ObterEntregas(
             [FromQuery] string? ClienteCodigo,
             [FromQuery] StatusEntrega? Status,
             [FromQuery] int? Page,
@@ -67,14 +69,59 @@ namespace TransporteApi.Controllers
                 List<EntregaDto> response = new List<EntregaDto>();
                 foreach (var item in result.Items)
                 {
-                    response.Add(new EntregaDto(item));
+                    response.Add(new EntregaDto(item.Id, item.Cliente, item.DataEnvio, item.Posts));
                 }
 
                 return Ok(new ResponseHelperPaginado<List<EntregaDto>>(response, result.TotalCount));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex);
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EntregaDto>> ObterEntregaPorId(string id)
+        {
+            try
+            {
+                var entrega = await _service.ObterEntregaPorId(id);
+
+                if (entrega == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new EntregaDto(entrega));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex);
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<EntregaDto>> AlterarStatusEntrega(
+            string id,
+            [FromBody] AlterarStatusEntrega request 
+        )
+        {
+            try
+            {
+                var result = await _service.AlterarStatusEntrega(id, request.Status);
+                if (result is null)
+                {
+                    return NotFound();
+                }
+                return Ok(new EntregaDto(result));
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode((int)HttpStatusCode.InternalServerError, ex);
             }
         }
 
