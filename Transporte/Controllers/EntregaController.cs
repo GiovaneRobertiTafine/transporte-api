@@ -1,10 +1,11 @@
-﻿using TransporteApi.Models;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using TransporteApi.Models;
 using TransporteApi.Models.DTO;
 using TransporteApi.Models.Interfaces;
 using TransporteApi.Models.Requests;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace TransporteApi.Controllers
 {
@@ -61,14 +62,15 @@ namespace TransporteApi.Controllers
                     PageSize = PageSize ?? 5
                 };
                 var result = await _service.ObterEntregas(req);
-                List<EntregaDto> response = new List<EntregaDto>();
+                int totalDeEntregas = result.TotalCount;
 
-                foreach (var item in result)
+                List<EntregaDto> response = new List<EntregaDto>();
+                foreach (var item in result.Items)
                 {
-                    response.Add(new EntregaDto(item)); 
+                    response.Add(new EntregaDto(item));
                 }
 
-                return Ok(new ResponseHelperPaginado<List<EntregaDto>>(response, response.Count));
+                return Ok(new ResponseHelperPaginado<List<EntregaDto>>(response, result.TotalCount));
             }
             catch (Exception ex)
             {

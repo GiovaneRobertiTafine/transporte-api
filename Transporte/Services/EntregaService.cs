@@ -43,7 +43,7 @@ namespace TransporteApi.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<Entrega>> ObterEntregas (ObterEntregasRequest request)
+        public async Task<PaginationResult<Entrega>> ObterEntregas (ObterEntregasRequest request)
         {
             var query = _context.Entregas.AsQueryable();
 
@@ -68,11 +68,13 @@ namespace TransporteApi.Services
                         .FirstOrDefault() == request.Status.Value);
             }
 
-            return await query
+            var itens = await query
                 .Include(e => e.Posts.OrderByDescending(p => p.Data))
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .ToListAsync();
+
+            return new PaginationResult<Entrega>(itens, await query.CountAsync());
         }
     }
 }
