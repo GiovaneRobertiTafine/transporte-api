@@ -11,7 +11,7 @@ namespace TransporteApi.Models
         public string Endereco { get; set; } = null!;
         public string Produto { get; set; } = null!;
         public DateTime DataEstimadaEntrega { get; set; }
-        public string Observcoes { get; set; } = null!;
+        public string? Observacoes { get; set; } = null!;
 
         public ICollection<HistoricoEntrega> Posts { get; set; } = new List<HistoricoEntrega>();
     }

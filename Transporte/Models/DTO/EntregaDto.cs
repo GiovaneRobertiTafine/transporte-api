@@ -8,7 +8,7 @@
         public string Endereco { get; set; } = null!;
         public string Produto { get; set; } = null!;
         public DateTime DataEstimadaEntrega { get; set; }
-        public string Observcoes { get; set; } = null!;
+        public string Observacoes { get; set; } = null!;
         public StatusEntrega Status { get; set; }
 
         public ICollection<HistoricoEntrega> Historico { get; set; } = new List<HistoricoEntrega>();
@@ -21,7 +21,7 @@
             Endereco = entrega.Endereco;
             DataEnvio = entrega.DataEnvio;
             DataEstimadaEntrega = entrega.DataEstimadaEntrega;
-            Observcoes = entrega.Observcoes;
+            Observacoes = entrega.Observacoes ?? "";
             Status = entrega.Posts.FirstOrDefault()!.Status;
             Historico = entrega.Posts.Skip(1).ToList();
         }

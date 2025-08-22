@@ -26,7 +26,7 @@ namespace TransporteApi.Services
                 DataEnvio = DateTime.Now,
                 Endereco = request.Endereco,
                 DataEstimadaEntrega = request.DataEstimadaEntrega,
-                Observcoes = request.Observcoes,
+                Observacoes = request.Observacoes,
                 Produto = request.Produto,
                 Posts = new List<HistoricoEntrega>()
                 {

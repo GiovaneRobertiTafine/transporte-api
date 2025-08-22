@@ -12,7 +12,7 @@ namespace TransporteApi.Models.Requests
         public string Produto { get; set; } = null!;
         [Required]
         public DateTime DataEstimadaEntrega { get; set; }
-        public string Observcoes { get; set; } = null!;
+        public string Observacoes { get; set; } = null!;
 
         public bool isValid ()
         {
