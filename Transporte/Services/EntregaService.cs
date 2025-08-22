@@ -70,6 +70,8 @@ namespace TransporteApi.Services
 
             return await query
                 .Include(e => e.Posts.OrderByDescending(p => p.Data))
+                .Skip((request.Page - 1) * request.PageSize)
+                .Take(request.PageSize)
                 .ToListAsync();
         }
     }

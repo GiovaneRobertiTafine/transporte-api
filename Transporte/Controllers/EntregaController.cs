@@ -47,8 +47,8 @@ namespace TransporteApi.Controllers
         public async Task<ActionResult<ResponseHelperPaginado<List<EntregaDto>>>> ObterEntregas (
             [FromQuery] string? ClienteCodigo,
             [FromQuery] StatusEntrega? Status,
-            [FromQuery] int? Pagina,
-            [FromQuery] int? TamanhoColecao
+            [FromQuery] int? Page,
+            [FromQuery] int? PageSize
         )
         {
             try
@@ -56,7 +56,9 @@ namespace TransporteApi.Controllers
                 ObterEntregasRequest req = new ObterEntregasRequest()
                 {
                     ClienteCodigo = ClienteCodigo,
-                    Status = Status
+                    Status = Status,
+                    Page = Page ?? 1,
+                    PageSize = PageSize ?? 5
                 };
                 var result = await _service.ObterEntregas(req);
                 List<EntregaDto> response = new List<EntregaDto>();
