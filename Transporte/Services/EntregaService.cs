@@ -65,7 +65,7 @@ namespace TransporteApi.Services
             {
                 query = query.Where(e =>
                     _context.HistoricoEntregas
-                        .Where(h => h.Id == e.Id)
+                        .Where(h => h.EntregaId == e.Id)
                         .OrderByDescending(h => h.Data)
                         .Select(h => h.Status)
                         .FirstOrDefault() == request.Status.Value);
@@ -89,6 +89,11 @@ namespace TransporteApi.Services
             .Where(e => e.Id == id)
             .Include(e => e.Posts)
             .FirstOrDefaultAsync();
+
+            if (entrega == null)
+            {
+                throw new ArgumentException($"Entrega com ID '{id}' não encontrada.");
+            }
 
             return entrega;
         }

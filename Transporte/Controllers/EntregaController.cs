@@ -94,6 +94,10 @@ namespace TransporteApi.Controllers
 
                 return Ok(new EntregaDto(entrega));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
             catch (Exception ex)
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, ex);
@@ -109,10 +113,7 @@ namespace TransporteApi.Controllers
             try
             {
                 var result = await _service.AlterarStatusEntrega(id, request.Status);
-                if (result is null)
-                {
-                    return NotFound();
-                }
+                
                 return Ok(new EntregaDto(result));
             }
             catch (ArgumentException ex)
