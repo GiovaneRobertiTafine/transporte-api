@@ -20,6 +20,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
              options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConnectionString")));
 
 builder.Services.AddScoped<IEntregaService, EntregaService>();
+builder.Services.AddScoped<IRelatorioService, RelatorioService>();
 
 builder.Services.AddCors(options =>
 {
